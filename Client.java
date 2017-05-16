@@ -21,10 +21,11 @@ public class Client
     {
     }
 
-    public void startClient(InetAddress addr, int port)
+    public ClientThread startClient(InetAddress addr, int port)
     {
         ClientThread clientThread = new ClientThread(addr, port);
         clientThread.start();
+        return clientThread;
     }
 
     public class ClientThread extends Thread
@@ -53,6 +54,10 @@ public class Client
             if (mySocket != null)
             {
                 netLog.log(Level.INFO, "Connection made");
+                synchronized (Main.monitor)
+                {
+                    Main.monitor.notifyAll();
+                }
                 while (running)
                 {
                     String msg = read();
@@ -69,9 +74,9 @@ public class Client
             try
             {
                 DataOutputStream out = new DataOutputStream(mySocket.getOutputStream());
-                out.writeUTF(str);
+                out.write(str.getBytes());
                 out.flush();
-                netLog.log(Level.INFO, "Sent message" + str);
+                netLog.log(Level.INFO, "Sent message " + str);
             }
             catch (IOException e)
             {
@@ -87,7 +92,24 @@ public class Client
                 DataInputStream in = new DataInputStream(mySocket.getInputStream());
                 try
                 {
-                    return in.readUTF();
+//                    return in.readUTF();
+                    // Should only need 512 bytes
+                    byte[] bytes = new byte[512];
+                    int i = 0;
+                    int input = in.read();
+                    while(input != -1)
+                    {
+                        if (input == 0x0d)
+                        {
+                            // Messages end in 0x0d 0x0a so end here
+                            // TODO check for following 0x0a
+                            break;
+                        }
+                        bytes[i] = (byte) input;
+                        i++;
+                        input = in.read();
+                    }
+                    return new String(bytes);
                 }
                 catch (EOFException e)
                 {

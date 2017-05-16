@@ -7,10 +7,10 @@ import java.util.logging.Logger;
 
 public class Main
 {
+    public final static Object monitor = new Object();
 
     public static void main(String[] args)
     {
-        // write your code here
         Logger netLog = Logger.getLogger("Network");
         netLog.setLevel(Level.CONFIG);
 
@@ -19,7 +19,20 @@ public class Main
             InetAddress address = InetAddress.getByName("192.168.0.200");
             Client client = new Client();
 
-            client.startClient(address, 6667);
+            Client.ClientThread connection = client.startClient(address, 6667);
+            // Wait for client to connect
+            synchronized (monitor)
+            {
+                try
+                {
+                    monitor.wait();
+                }
+                catch (InterruptedException e)
+                {
+                    e.printStackTrace();
+                }
+            }
+            connection.write("CAP LS\r\n");
         }
         catch (UnknownHostException e)
         {
