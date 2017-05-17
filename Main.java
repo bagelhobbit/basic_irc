@@ -38,59 +38,77 @@ public class Main extends Application
         grid.setAlignment(Pos.CENTER);
         grid.setHgap(10);
         grid.setVgap(10);
-        grid.setPadding(new Insets(25,25,25,25));
+        grid.setPadding(new Insets(25, 25, 25, 25));
 
         Text sceneTitle = new Text("Connection information");
-        grid.add(sceneTitle, 0,0,3,1);
+        grid.add(sceneTitle, 0, 0, 3, 1);
 
         Label serverAddress = new Label("Server address:");
-        grid.add(serverAddress, 0,1);
+        grid.add(serverAddress, 0, 1);
 
         TextField addressTextField = new TextField();
-        grid.add(addressTextField, 1,1);
+        grid.add(addressTextField, 1, 1);
 
         Label serverPort = new Label("Server Port:");
-        grid.add(serverPort, 0,2);
+        grid.add(serverPort, 0, 2);
 
         TextField portTextField = new TextField();
-        grid.add(portTextField, 1,2);
+        grid.add(portTextField, 1, 2);
 
         Button connect = new Button("Connect");
         connect.setOnAction((ActionEvent event) ->
                             {
                                 netLog.log(Level.INFO, "Hello, World!");
+                                // Default values
+                                InetAddress address = null;
+                                int         port = 6667;
+
+                                try
+                                {
+                                    address = InetAddress.getByName(addressTextField.getText());
+                                    port = Integer.valueOf(portTextField.getText());
+                                }
+                                catch (UnknownHostException e)
+                                {
+                                    e.printStackTrace();
+                                    netLog.log(Level.SEVERE, "Unknown host");
+                                    // Stop connection if we don't have a valid host
+                                    return;
+                                }
+                                catch (NumberFormatException e)
+                                {
+                                    e.printStackTrace();
+                                    netLog.log(Level.INFO,
+                                               "Unable to parse port number, using default value");
+                                }
+
+                                startConnection(address, port);
                             }
         );
-        grid.add(connect,0,3,3,1);
+        grid.add(connect, 0, 3, 3, 1);
 
-        Scene scene =  new Scene(grid, 300, 250);
+        Scene scene = new Scene(grid, 300, 250);
         primaryStage.setScene(scene);
         primaryStage.show();
+    }
 
-        try
+    private void startConnection(InetAddress address, int port)
+    {
+        Client client = new Client();
+
+        Client.ClientThread connection = client.startClient(address, port);
+        // Wait for client to connect
+        synchronized (monitor)
         {
-            InetAddress address = InetAddress.getByName("192.168.0.200");
-            Client client = new Client();
-
-            Client.ClientThread connection = client.startClient(address, 6667);
-            // Wait for client to connect
-            synchronized (monitor)
+            try
             {
-                try
-                {
-                    monitor.wait();
-                }
-                catch (InterruptedException e)
-                {
-                    e.printStackTrace();
-                }
+                monitor.wait();
             }
-            connection.write("CAP LS\r\n");
+            catch (InterruptedException e)
+            {
+                e.printStackTrace();
+            }
         }
-        catch (UnknownHostException e)
-        {
-            e.printStackTrace();
-            netLog.log(Level.SEVERE, "Unknown host");
-        }
+        connection.write("CAP LS\r\n");
     }
 }
