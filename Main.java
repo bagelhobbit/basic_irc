@@ -62,6 +62,7 @@ public class Main extends Application
                                 // Default values
                                 InetAddress address = null;
                                 int         port = 6667;
+                                String[] nicks = {"Nickname", "name", "user"};
 
                                 try
                                 {
@@ -82,7 +83,7 @@ public class Main extends Application
                                                "Unable to parse port number, using default value");
                                 }
 
-                                startConnection(address, port);
+                                startConnection(address, port, nicks);
                             }
         );
         grid.add(connect, 0, 3, 3, 1);
@@ -92,23 +93,10 @@ public class Main extends Application
         primaryStage.show();
     }
 
-    private void startConnection(InetAddress address, int port)
+    private void startConnection(InetAddress address, int port, String[] nicks)
     {
-        Client client = new Client();
+        Client client = new Client(nicks);
 
         Client.ClientThread connection = client.startClient(address, port);
-        // Wait for client to connect
-        synchronized (monitor)
-        {
-            try
-            {
-                monitor.wait();
-            }
-            catch (InterruptedException e)
-            {
-                e.printStackTrace();
-            }
-        }
-        connection.write("CAP LS\r\n");
     }
 }

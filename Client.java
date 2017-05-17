@@ -16,9 +16,11 @@ import java.util.logging.Logger;
 public class Client
 {
     private Logger netLog = Logger.getLogger("Network");
+    private String[] nicks;
 
-    public Client()
+    public Client(String[] nicks)
     {
+        this.nicks = nicks;
     }
 
     public ClientThread startClient(InetAddress addr, int port)
@@ -54,10 +56,15 @@ public class Client
             if (mySocket != null)
             {
                 netLog.log(Level.INFO, "Connection made");
-                synchronized (Main.monitor)
-                {
-                    Main.monitor.notifyAll();
-                }
+                // Capability negotiation
+                write("CAP LS\r\n");
+                // TODO Server password
+                // Start registration
+                // Use preferred nickname
+                // TODO USER params
+                write("NICK " + nicks[0] + "\r\nUSER user host server :realname\r\n");
+                // End capability negotiation since nothing is supported yet...
+                write("CAP END\r\n");
                 while (running)
                 {
                     String msg = read();
@@ -92,7 +99,6 @@ public class Client
                 DataInputStream in = new DataInputStream(mySocket.getInputStream());
                 try
                 {
-//                    return in.readUTF();
                     // Should only need 512 bytes
                     byte[] bytes = new byte[512];
                     int i = 0;
