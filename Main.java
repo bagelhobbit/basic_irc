@@ -12,8 +12,12 @@ import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextField;
+import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.StackPane;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
 
@@ -86,7 +90,10 @@ public class Main extends Application
                                 startConnection(address, port, nicks);
                             }
         );
-        grid.add(connect, 0, 3, 3, 1);
+        HBox hbBtn = new HBox(10);
+        hbBtn.setAlignment(Pos.BOTTOM_RIGHT);
+        hbBtn.getChildren().add(connect);
+        grid.add(hbBtn, 1, 3);
 
         Scene scene = new Scene(grid, 300, 250);
         primaryStage.setScene(scene);
@@ -98,5 +105,23 @@ public class Main extends Application
         Client client = new Client(nicks);
 
         Client.ClientThread connection = client.startClient(address, port);
+
+        Label info = new Label("Connecting to " + address);
+        info.setPrefSize(300, 300);
+        info.setAlignment(Pos.TOP_LEFT);
+        ScrollPane window = new ScrollPane();
+        window.setMinSize(300, 300);
+        window.setContent(info);
+        TextField commandField = new TextField();
+        commandField.setAlignment(Pos.BASELINE_LEFT);
+        StackPane root = new StackPane();
+        root.getChildren().add(window);
+        root.getChildren().add(commandField);
+        root.setAlignment(Pos.BOTTOM_CENTER);
+
+        Stage serverWindow = new Stage();
+        serverWindow.setTitle("Server name");
+        serverWindow.setScene(new Scene(root, 300, 400));
+        serverWindow.show();
     }
 }
