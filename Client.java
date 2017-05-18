@@ -17,6 +17,7 @@ public class Client
 {
     private Logger netLog = Logger.getLogger("Network");
     private String[] nicks;
+    private String   nickname;
 
     public Client(String[] nicks)
     {
@@ -60,9 +61,10 @@ public class Client
                 write("CAP LS\r\n");
                 // TODO Server password
                 // Start registration
-                // Use preferred nickname
+                // Record nickname, in case preferred nick is taken and we need to use another
+                nickname = nicks[0];
+                write("NICK " + nickname + "\r\nUSER user host server :realname\r\n");
                 // TODO USER params
-                write("NICK " + nicks[0] + "\r\nUSER user host server :realname\r\n");
                 // End capability negotiation since nothing is supported yet...
                 write("CAP END\r\n");
                 while (running)
@@ -135,10 +137,18 @@ public class Client
         private void processMessage(String msg)
         {
             netLog.log(Level.INFO, "Received: " + msg);
+            // Messages start with :, so start checking content at index 1
             String[] split = msg.split(":");
-            if (split[0].contains("NOTICE"))
+            if (split[1].contains("NOTICE"))
             {
-                msg = split[1];
+                // Display NOTICE message, without header info
+                msg = split[2] + "\n";
+            }
+            else if (split[1].contains("375") || split[1].contains("372") ||
+                     split[1].contains("376"))
+            {
+                // MOTD (start, content, end); strip header information
+                msg = split[2] + "\n";
             }
             Main.appendToWindow(msg);
         }
