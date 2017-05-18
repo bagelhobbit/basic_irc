@@ -6,24 +6,26 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
-import javafx.scene.control.ScrollPane;
+import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
-import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
-import javafx.scene.layout.StackPane;
+import javafx.scene.layout.Priority;
+import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
 
 public class Main extends Application
 {
-    public final static Object monitor = new Object();
+
+    private static TextArea info;
 
     public static void main(String[] args)
     {
@@ -106,22 +108,27 @@ public class Main extends Application
 
         Client.ClientThread connection = client.startClient(address, port);
 
-        Label info = new Label("Connecting to " + address);
-        info.setPrefSize(300, 300);
-        info.setAlignment(Pos.TOP_LEFT);
-        ScrollPane window = new ScrollPane();
-        window.setMinSize(300, 300);
-        window.setContent(info);
+        info = new TextArea("Connecting to " + address + "\n");
+        info.setEditable(false);
+        //        info.setWrapText(true);
+
         TextField commandField = new TextField();
         commandField.setAlignment(Pos.BASELINE_LEFT);
-        StackPane root = new StackPane();
-        root.getChildren().add(window);
-        root.getChildren().add(commandField);
-        root.setAlignment(Pos.BOTTOM_CENTER);
+
+        VBox root = new VBox();
+        root.getChildren().addAll(info, commandField);
+        VBox.setVgrow(info, Priority.ALWAYS);
 
         Stage serverWindow = new Stage();
         serverWindow.setTitle("Server name");
-        serverWindow.setScene(new Scene(root, 300, 400));
+        serverWindow.setScene(new Scene(root, 600, 400));
         serverWindow.show();
+    }
+
+    public static void appendToWindow(String text)
+    {
+        // Assume a newline is already added
+        // Let the FX thread update the text area
+        Platform.runLater(() -> info.appendText(text));
     }
 }

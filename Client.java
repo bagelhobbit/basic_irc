@@ -135,6 +135,12 @@ public class Client
         private void processMessage(String msg)
         {
             netLog.log(Level.INFO, "Received: " + msg);
+            String[] split = msg.split(":");
+            if (split[0].contains("NOTICE"))
+            {
+                msg = split[1];
+            }
+            Main.appendToWindow(msg);
         }
     }
 }
