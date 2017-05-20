@@ -27,7 +27,8 @@ public class Main extends Application
 {
 
     private static TextArea info;
-    private String currentChannel = null;
+    private              String currentChannel = null;
+    private static final VBox   list           = new VBox();
 
     public static void main(String[] args)
     {
@@ -128,30 +129,53 @@ public class Main extends Application
                                  }
         );
 
-        VBox root = new VBox();
-        root.getChildren().addAll(info, commandField);
+        VBox textPane = new VBox();
+        textPane.getChildren().addAll(info, commandField);
         VBox.setVgrow(info, Priority.ALWAYS);
+
+        Label serverName = new Label("SERVER");
+
+        list.getChildren().add(serverName);
+
+        HBox hBox = new HBox();
+        hBox.getChildren().addAll(list, textPane);
+        HBox.setHgrow(textPane, Priority.ALWAYS);
+        HBox.setMargin(list, new Insets(5, 5, 0, 10));
 
         Stage serverWindow = new Stage();
         serverWindow.setTitle("Server name");
-        serverWindow.setScene(new Scene(root, 600, 400));
+        serverWindow.setScene(new Scene(hBox, 1000, 500));
         serverWindow.show();
     }
 
     public static void appendToWindow(String text)
     {
-        // Assume a newline is already added
         // Let the FX thread update the text area
-        Platform.runLater(() -> info.appendText(text));
+        // Trim text to remove any trailing space/newline then add a newline to ensure line breaks
+        Platform.runLater(() -> info.appendText(text.trim() + "\n"));
     }
 
     private void processInput(String input, Client.ClientThread thread)
     {
         if (input.toLowerCase().startsWith("/join"))
         {
-            // Remove leading '/join ' to better format request
-            currentChannel = input.substring(6);
+            // Remove leading '/join' to better format request
+            currentChannel = input.substring(5).trim();
             thread.write("JOIN :" + currentChannel);
+            Label label = new Label(currentChannel);
+            list.getChildren().add(label);
+            VBox.setMargin(label, new Insets(0, 0, 0, 6));
+        }
+        else if (input.toLowerCase().startsWith("/part"))
+        {
+            // Remove leading command for better formatting
+            String toLeave = input.substring(5).trim();
+            if (toLeave.isEmpty() || toLeave.equals(""))
+            {
+                toLeave = currentChannel;
+            }
+            thread.write("PART :" + toLeave);
+            appendToWindow("You have left the channel\n");
         }
         else
         {
