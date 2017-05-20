@@ -103,9 +103,9 @@ public class Client
                 {
                     // Should only need 512 bytes
                     byte[] bytes = new byte[512];
-                    int i = 0;
-                    int input = in.read();
-                    while(input != -1)
+                    int    i     = 0;
+                    int    input = in.read();
+                    while (input != -1)
                     {
                         if (input == 0x0d)
                         {
@@ -124,7 +124,7 @@ public class Client
                     return null;
                 }
             }
-            catch(IOException e)
+            catch (IOException e)
             {
                 e.printStackTrace();
                 running = false;
@@ -137,18 +137,21 @@ public class Client
         private void processMessage(String msg)
         {
             netLog.log(Level.INFO, "Received: " + msg);
-            // Messages start with :, so start checking content at index 1
-            String[] split = msg.split(":");
-            if (split[1].contains("NOTICE"))
+            String[] split;
+            if (msg.contains("NOTICE"))
             {
+                split = msg.split("NOTICE \\*");
                 // Display NOTICE message, without header info
-                msg = split[2] + "\n";
+                // Remove leading/trailing spaces, then remove leading ":"
+                msg = split[1].trim().substring(1) + "\n";
             }
-            else if (split[1].contains("375") || split[1].contains("372") ||
-                     split[1].contains("376"))
+            if (msg.contains("375 " + nickname) || msg.contains("372 " + nickname) ||
+                msg.contains("376 " + nickname))
             {
-                // MOTD (start, content, end); strip header information
-                msg = split[2] + "\n";
+                split = msg.split(nickname);
+                // MOTD (start, content, end), strip header information
+                // Remove leading/trailing spaces, then remove leading ":"
+                msg = split[1].trim().substring(1) + "\n";
             }
             Main.appendToWindow(msg);
         }

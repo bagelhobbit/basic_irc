@@ -19,6 +19,7 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
+import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
 
@@ -37,6 +38,8 @@ public class Main extends Application
     {
         Logger netLog = Logger.getLogger("Network");
         netLog.setLevel(Level.CONFIG);
+        Logger logger = Logger.getLogger("Default");
+        logger.setLevel(Level.CONFIG);
 
         primaryStage.setTitle("Basic IRC");
 
@@ -62,13 +65,14 @@ public class Main extends Application
         grid.add(portTextField, 1, 2);
 
         Button connect = new Button("Connect");
+        connect.setDefaultButton(true);
         connect.setOnAction((ActionEvent event) ->
                             {
-                                netLog.log(Level.INFO, "Hello, World!");
+                                logger.log(Level.INFO, "Parsing server connection input");
                                 // Default values
                                 InetAddress address = null;
-                                int         port = 6667;
-                                String[] nicks = {"Nickname", "name", "user"};
+                                int         port;
+                                String[]    nicks   = {"Nickname", "name", "user"};
 
                                 try
                                 {
@@ -78,14 +82,15 @@ public class Main extends Application
                                 catch (UnknownHostException e)
                                 {
                                     e.printStackTrace();
-                                    netLog.log(Level.SEVERE, "Unknown host");
+                                    netLog.log(Level.SEVERE, "Unknown host, could not connect");
                                     // Stop connection if we don't have a valid host
                                     return;
                                 }
                                 catch (NumberFormatException e)
                                 {
                                     e.printStackTrace();
-                                    netLog.log(Level.INFO,
+                                    port = 6667;
+                                    netLog.log(Level.WARNING,
                                                "Unable to parse port number, using default value");
                                 }
 
@@ -110,10 +115,17 @@ public class Main extends Application
 
         info = new TextArea("Connecting to " + address + "\n");
         info.setEditable(false);
-        //        info.setWrapText(true);
+        info.setWrapText(true);
+        info.setFont(Font.font("Monospaced"));
 
         TextField commandField = new TextField();
         commandField.setAlignment(Pos.BASELINE_LEFT);
+        commandField.setOnAction((ActionEvent event) ->
+                                 {
+                                     processInput(commandField.getText());
+                                     commandField.clear();
+                                 }
+        );
 
         VBox root = new VBox();
         root.getChildren().addAll(info, commandField);
@@ -130,5 +142,10 @@ public class Main extends Application
         // Assume a newline is already added
         // Let the FX thread update the text area
         Platform.runLater(() -> info.appendText(text));
+    }
+
+    private void processInput(String input)
+    {
+
     }
 }
