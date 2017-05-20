@@ -27,6 +27,7 @@ public class Main extends Application
 {
 
     private static TextArea info;
+    private String currentChannel = null;
 
     public static void main(String[] args)
     {
@@ -122,7 +123,7 @@ public class Main extends Application
         commandField.setAlignment(Pos.BASELINE_LEFT);
         commandField.setOnAction((ActionEvent event) ->
                                  {
-                                     processInput(commandField.getText());
+                                     processInput(commandField.getText(), connection);
                                      commandField.clear();
                                  }
         );
@@ -144,8 +145,18 @@ public class Main extends Application
         Platform.runLater(() -> info.appendText(text));
     }
 
-    private void processInput(String input)
+    private void processInput(String input, Client.ClientThread thread)
     {
-
+        if (input.toLowerCase().startsWith("/join"))
+        {
+            // Remove leading '/join ' to better format request
+            currentChannel = input.substring(6);
+            thread.write("JOIN :" + currentChannel);
+        }
+        else
+        {
+            // Assume we are sending a message to the server/channel
+            thread.write("PRIVMSG " + currentChannel + " :" + input);
+        }
     }
 }

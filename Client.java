@@ -58,15 +58,15 @@ public class Client
             {
                 netLog.log(Level.INFO, "Connection made");
                 // Capability negotiation
-                write("CAP LS\r\n");
+                write("CAP LS");
                 // TODO Server password
                 // Start registration
                 // Record nickname, in case preferred nick is taken and we need to use another
                 nickname = nicks[0];
-                write("NICK " + nickname + "\r\nUSER user host server :realname\r\n");
+                write("NICK " + nickname + "\r\nUSER user host server :realname");
                 // TODO USER params
                 // End capability negotiation since nothing is supported yet...
-                write("CAP END\r\n");
+                write("CAP END");
                 while (running)
                 {
                     String msg = read();
@@ -82,6 +82,8 @@ public class Client
         {
             try
             {
+                // Add end of message signifier to all passed messages
+                str = str.concat("\r\n");
                 DataOutputStream out = new DataOutputStream(mySocket.getOutputStream());
                 out.write(str.getBytes());
                 out.flush();
@@ -142,7 +144,7 @@ public class Client
             {
                 split = msg.split("NOTICE \\*");
                 // Display NOTICE message, without header info
-                // Remove leading/trailing spaces, then remove leading ":"
+                // Remove leading/trailing spaces, then remove leading ':'
                 msg = split[1].trim().substring(1) + "\n";
             }
             if (msg.contains("375 " + nickname) || msg.contains("372 " + nickname) ||
@@ -150,7 +152,7 @@ public class Client
             {
                 split = msg.split(nickname);
                 // MOTD (start, content, end), strip header information
-                // Remove leading/trailing spaces, then remove leading ":"
+                // Remove leading/trailing spaces, then remove leading ':'
                 msg = split[1].trim().substring(1) + "\n";
             }
             Main.appendToWindow(msg);
