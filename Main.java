@@ -6,30 +6,20 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javafx.application.Application;
-import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
-import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
-import javafx.scene.layout.Priority;
-import javafx.scene.layout.VBox;
-import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
 
 public class Main extends Application
 {
-
-    private static TextArea info;
-    private        String   currentChannel;
-    private static final VBox list = new VBox();
-
     public static void main(String[] args)
     {
         launch(args);
@@ -113,74 +103,9 @@ public class Main extends Application
     {
         Client client = new Client(nicks);
 
-        Client.ClientThread connection = client.startClient(address, port);
-
-        info = new TextArea("Connecting to " + address + "\n");
-        info.setEditable(false);
-        info.setWrapText(true);
-        info.setFont(Font.font("Monospaced"));
-
-        TextField commandField = new TextField();
-        commandField.setAlignment(Pos.BASELINE_LEFT);
-        commandField.setOnAction((ActionEvent event) ->
-                                 {
-                                     processInput(commandField.getText(), connection);
-                                     commandField.clear();
-                                 }
-        );
-
-        VBox textPane = new VBox();
-        textPane.getChildren().addAll(info, commandField);
-        VBox.setVgrow(info, Priority.ALWAYS);
-
-        Label serverName = new Label("SERVER");
-
-        list.getChildren().add(serverName);
-
-        HBox hBox = new HBox();
-        hBox.getChildren().addAll(list, textPane);
-        HBox.setHgrow(textPane, Priority.ALWAYS);
-        HBox.setMargin(list, new Insets(5, 5, 0, 10));
-
-        Stage serverWindow = new Stage();
-        serverWindow.setTitle("Server name");
-        serverWindow.setScene(new Scene(hBox, 1000, 500));
-        serverWindow.show();
+        Connection connection =
+            new Connection(client.startClient(address, port), address.toString(), "SERVER");
     }
 
-    public static void appendToWindow(String text)
-    {
-        // Let the FX thread update the text area
-        // Trim text to remove any trailing space/newline then add a newline to ensure line breaks
-        Platform.runLater(() -> info.appendText(text.trim() + "\n"));
-    }
 
-    private void processInput(String input, Client.ClientThread thread)
-    {
-        if (input.toLowerCase().startsWith("/join"))
-        {
-            // Remove leading '/join' to better format request
-            currentChannel = input.substring(5).trim();
-            thread.write("JOIN :" + currentChannel);
-            Label label = new Label(currentChannel);
-            list.getChildren().add(label);
-            VBox.setMargin(label, new Insets(0, 0, 0, 6));
-        }
-        else if (input.toLowerCase().startsWith("/part"))
-        {
-            // Remove leading command for better formatting
-            String toLeave = input.substring(5).trim();
-            if (toLeave.isEmpty() || toLeave.equals(""))
-            {
-                toLeave = currentChannel;
-            }
-            thread.write("PART :" + toLeave);
-            appendToWindow("You have left the channel\n");
-        }
-        else
-        {
-            // Assume we are sending a message to the server/channel
-            thread.write("PRIVMSG " + currentChannel + " :" + input);
-        }
-    }
 }

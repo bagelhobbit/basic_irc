@@ -35,7 +35,8 @@ public class Client
     {
         Socket mySocket = null;
         private boolean running = true;
-        private String serverName;
+        private String     serverName;
+        private Connection connection;
 
         public ClientThread(InetAddress address, int port)
         {
@@ -162,12 +163,22 @@ public class Client
                 // Remove leading/trailing spaces, then remove leading ':'
                 msg = split[1].trim().substring(1);
             }
-            Main.appendToWindow(msg);
+            connection.appendToWindow(msg);
+        }
+
+        public void setConnection(Connection c)
+        {
+            connection = c;
         }
 
         public String getServerName()
         {
             return serverName;
+        }
+
+        public String getNickname()
+        {
+            return nickname;
         }
     }
 }
