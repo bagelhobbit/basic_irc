@@ -35,6 +35,7 @@ public class Client
     {
         Socket mySocket = null;
         private boolean running = true;
+        private String serverName;
 
         public ClientThread(InetAddress address, int port)
         {
@@ -145,7 +146,13 @@ public class Client
                 split = msg.split("NOTICE \\*");
                 // Display NOTICE message, without header info
                 // Remove leading/trailing spaces, then remove leading ':'
-                msg = split[1].trim().substring(1) + "\n";
+                msg = split[1].trim().substring(1);
+                if (serverName == null)
+                {
+                    // get the server name
+                    serverName = split[0].split(" ")[0].substring(1);
+                    Logger.getAnonymousLogger().log(Level.INFO, "Server name: " + serverName);
+                }
             }
             if (msg.contains("375 " + nickname) || msg.contains("372 " + nickname) ||
                 msg.contains("376 " + nickname))
@@ -153,9 +160,14 @@ public class Client
                 split = msg.split(nickname);
                 // MOTD (start, content, end), strip header information
                 // Remove leading/trailing spaces, then remove leading ':'
-                msg = split[1].trim().substring(1) + "\n";
+                msg = split[1].trim().substring(1);
             }
             Main.appendToWindow(msg);
+        }
+
+        public String getServerName()
+        {
+            return serverName;
         }
     }
 }

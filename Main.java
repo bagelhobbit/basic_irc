@@ -27,8 +27,8 @@ public class Main extends Application
 {
 
     private static TextArea info;
-    private              String currentChannel = null;
-    private static final VBox   list           = new VBox();
+    private        String   currentChannel;
+    private static final VBox list = new VBox();
 
     public static void main(String[] args)
     {
