@@ -15,9 +15,9 @@ import java.util.logging.Logger;
  */
 public class Client
 {
-    private Logger netLog = Logger.getLogger("Network");
-    private String[] nicks;
-    private String   nickname;
+    private final Logger netLog = Logger.getLogger("Network");
+    private final String[] nicks;
+    private       String   nickname;
 
     public Client(String[] nicks)
     {
@@ -142,6 +142,7 @@ public class Client
         {
             netLog.log(Level.INFO, "Received: " + msg);
             String[] split;
+            String   receivedFrom = null;
             if (msg.contains("NOTICE"))
             {
                 split = msg.split("NOTICE \\*");
@@ -155,15 +156,21 @@ public class Client
                     Logger.getAnonymousLogger().log(Level.INFO, "Server name: " + serverName);
                 }
             }
-            if (msg.contains("375 " + nickname) || msg.contains("372 " + nickname) ||
-                msg.contains("376 " + nickname))
+            else if (msg.contains("375 " + nickname) || msg.contains("372 " + nickname) ||
+                     msg.contains("376 " + nickname))
             {
                 split = msg.split(nickname);
                 // MOTD (start, content, end), strip header information
                 // Remove leading/trailing spaces, then remove leading ':'
                 msg = split[1].trim().substring(1);
             }
-            connection.appendToWindow(msg);
+            else if (msg.contains("PRIVMSG"))
+            {
+                split = msg.split(" ");
+                // get the channel that sent the message and substring '#' off
+                receivedFrom = split[2].substring(1);
+            }
+            connection.appendToWindow(msg, receivedFrom);
         }
 
         public void setConnection(Connection c)

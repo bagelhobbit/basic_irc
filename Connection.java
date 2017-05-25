@@ -101,7 +101,7 @@ public class Connection
                                         }
                                     });
 
-            TextArea area = new TextArea("Joined channel" + currentChannel);
+            TextArea area = new TextArea("Joined channel " + currentChannel);
             area.setEditable(false);
             area.setWrapText(true);
             area.setFont(Font.font("Monospaced"));
@@ -122,20 +122,25 @@ public class Connection
                 toLeave = currentChannel;
             }
             thread.write("PART :" + toLeave);
-            appendToWindow("You have left the channel\n");
+            appendToWindow("You have left the channel\n", currentChannel);
         }
         else
         {
             // Assume we are sending a message to the current channel
             thread.write("PRIVMSG " + currentChannel + " :" + input);
-            appendToWindow(thread.getNickname() + ": " + input);
+            appendToWindow(thread.getNickname() + ": " + input, currentChannel);
         }
     }
 
-    public void appendToWindow(String text)
+    public void appendToWindow(String text, String receivedFrom)
     {
+        if (receivedFrom == null)
+        {
+            receivedFrom = server;
+        }
         // Let the FX thread update the text area
-        // Trim text to remove any trailing space/newline then add a newline to ensure line breaks
-        Platform.runLater(() -> channelLog.get(currentChannel).appendText(text.trim() + "\n"));
+        // Trim text to remove any trailing space/newline, then add a newline to ensure line breaks
+        final String finalReceivedFrom = receivedFrom;
+        Platform.runLater(() -> channelLog.get(finalReceivedFrom).appendText(text.trim() + "\n"));
     }
 }

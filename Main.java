@@ -102,9 +102,7 @@ public class Main extends Application
     private void startConnection(InetAddress address, int port, String[] nicks)
     {
         Client client = new Client(nicks);
-
-        Connection connection =
-            new Connection(client.startClient(address, port), address.toString(), "SERVER");
+        new Connection(client.startClient(address, port), address.toString(), "SERVER");
     }
 
 
