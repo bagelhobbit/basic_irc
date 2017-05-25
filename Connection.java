@@ -10,6 +10,8 @@ import javafx.scene.Scene;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
+import javafx.scene.input.MouseButton;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
@@ -18,6 +20,7 @@ import javafx.stage.Stage;
 
 /**
  * Created by Evan on 5/24/2017.
+ * Class to manage server connection information
  */
 public class Connection
 {
@@ -55,6 +58,15 @@ public class Connection
         VBox.setVgrow(info, Priority.ALWAYS);
 
         Label serverName = new Label(server);
+        serverName.setOnMouseClicked((MouseEvent event) ->
+                                     {
+                                         if (event.getButton().equals(MouseButton.PRIMARY))
+                                         {
+                                             textPane.getChildren().set(0, info);
+                                             currentChannel = server;
+                                         }
+                                     }
+        );
 
         list.getChildren().add(serverName);
 
@@ -78,8 +90,23 @@ public class Connection
             thread.write("JOIN :" + currentChannel);
 
             Label label = new Label(currentChannel);
-            channelLog.put(currentChannel, new TextArea("Joined channel" + currentChannel));
-            TextArea area = channelLog.get(currentChannel);
+            label.setOnMouseClicked((MouseEvent event) ->
+                                    {
+                                        if (event.getButton().equals(MouseButton.PRIMARY))
+                                        {
+                                            String text = label.getText();
+                                            textPane.getChildren()
+                                                    .set(0, channelLog.get(text));
+                                            currentChannel = text;
+                                        }
+                                    });
+
+            TextArea area = new TextArea("Joined channel" + currentChannel);
+            area.setEditable(false);
+            area.setWrapText(true);
+            area.setFont(Font.font("Monospaced"));
+
+            channelLog.put(currentChannel, area);
             textPane.getChildren().set(0, area);
             VBox.setVgrow(area, Priority.ALWAYS);
 
@@ -99,7 +126,7 @@ public class Connection
         }
         else
         {
-            // Assume we are sending a message to the server/channel
+            // Assume we are sending a message to the current channel
             thread.write("PRIVMSG " + currentChannel + " :" + input);
             appendToWindow(thread.getNickname() + ": " + input);
         }
