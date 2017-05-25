@@ -33,8 +33,8 @@ public class Client
 
     public class ClientThread extends Thread
     {
-        Socket mySocket = null;
-        private boolean running = true;
+        private Socket  mySocket = null;
+        private boolean running  = true;
         private String     serverName;
         private Connection connection;
 
@@ -95,6 +95,7 @@ public class Client
             {
                 e.printStackTrace();
                 netLog.log(Level.SEVERE, "Unable to write to server");
+                closeConnection();
             }
         }
 
@@ -133,6 +134,7 @@ public class Client
                 e.printStackTrace();
                 running = false;
                 netLog.log(Level.SEVERE, "Unable to read from server");
+                closeConnection();
             }
 
             return null;
@@ -171,6 +173,19 @@ public class Client
                 receivedFrom = split[2].substring(1);
             }
             connection.appendToWindow(msg, receivedFrom);
+        }
+
+        public void closeConnection()
+        {
+            try
+            {
+                mySocket.close();
+            }
+            catch (IOException e)
+            {
+                e.printStackTrace();
+                netLog.log(Level.WARNING, "Socket failed to close properly");
+            }
         }
 
         public void setConnection(Connection c)

@@ -124,6 +124,12 @@ public class Connection
             thread.write("PART :" + toLeave);
             appendToWindow("You have left the channel\n", currentChannel);
         }
+        else if (input.toLowerCase().startsWith("/quit"))
+        {
+            // TODO add quit message
+            thread.write("QUIT");
+            thread.closeConnection();
+        }
         else
         {
             // Assume we are sending a message to the current channel
