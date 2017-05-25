@@ -22,7 +22,7 @@ import javafx.stage.Stage;
  * Created by Evan on 5/24/2017.
  * Class to manage server connection information
  */
-public class Connection
+class Connection
 {
     private final String              server;
     private final Client.ClientThread thread;
@@ -138,7 +138,7 @@ public class Connection
         }
     }
 
-    public void appendToWindow(String text, String receivedFrom)
+    void appendToWindow(String text, String receivedFrom)
     {
         if (receivedFrom == null)
         {

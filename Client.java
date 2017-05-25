@@ -13,18 +13,18 @@ import java.util.logging.Logger;
  * Created by Evan on 5/15/2017.
  * Client class to handle network connections to the server
  */
-public class Client
+class Client
 {
     private final Logger netLog = Logger.getLogger("Network");
     private final String[] nicks;
     private       String   nickname;
 
-    public Client(String[] nicks)
+    Client(String[] nicks)
     {
         this.nicks = nicks;
     }
 
-    public ClientThread startClient(InetAddress addr, int port)
+    ClientThread startClient(InetAddress addr, int port)
     {
         ClientThread clientThread = new ClientThread(addr, port);
         clientThread.start();
@@ -38,7 +38,7 @@ public class Client
         private String     serverName;
         private Connection connection;
 
-        public ClientThread(InetAddress address, int port)
+        ClientThread(InetAddress address, int port)
         {
             try
             {
@@ -80,7 +80,7 @@ public class Client
             }
         }
 
-        public void write(String str)
+        void write(String str)
         {
             try
             {
@@ -106,7 +106,7 @@ public class Client
                 DataInputStream in = new DataInputStream(mySocket.getInputStream());
                 try
                 {
-                    // Should only need 512 bytes
+                    // Messages shouldn't ever be longer than 512 characters
                     byte[] bytes = new byte[512];
                     int    i     = 0;
                     int    input = in.read();
@@ -175,7 +175,7 @@ public class Client
             connection.appendToWindow(msg, receivedFrom);
         }
 
-        public void closeConnection()
+        void closeConnection()
         {
             try
             {
@@ -188,17 +188,17 @@ public class Client
             }
         }
 
-        public void setConnection(Connection c)
+        void setConnection(Connection c)
         {
             connection = c;
         }
 
-        public String getServerName()
+        String getServerName()
         {
             return serverName;
         }
 
-        public String getNickname()
+        String getNickname()
         {
             return nickname;
         }
