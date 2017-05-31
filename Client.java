@@ -131,7 +131,7 @@ class Client
             }
             catch (IOException e)
             {
-                e.printStackTrace();
+                //                e.printStackTrace();
                 running = false;
                 netLog.log(Level.SEVERE, "Unable to read from server");
                 closeConnection();
@@ -169,8 +169,8 @@ class Client
             else if (msg.contains("PRIVMSG"))
             {
                 split = msg.split(" ");
-                // get the channel that sent the message and substring '#' off
-                receivedFrom = split[2].substring(1);
+                // get the channel that sent the message
+                receivedFrom = split[2];
             }
             connection.appendToWindow(msg, receivedFrom);
         }

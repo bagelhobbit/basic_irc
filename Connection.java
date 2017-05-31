@@ -101,7 +101,7 @@ class Connection
                                         }
                                     });
 
-            TextArea area = new TextArea("Joined channel " + currentChannel + "\n");
+            TextArea area = new TextArea("Now talking on " + currentChannel + "\n");
             area.setEditable(false);
             area.setWrapText(true);
             area.setFont(Font.font("Monospaced"));
@@ -133,7 +133,7 @@ class Connection
             }
             else
             {
-                thread.write("QUIT :" + quitMessage);
+                thread.write("QUIT: " + quitMessage);
             }
             thread.closeConnection();
         }
