@@ -101,7 +101,7 @@ class Connection
                                         }
                                     });
 
-            TextArea area = new TextArea("Joined channel " + currentChannel);
+            TextArea area = new TextArea("Joined channel " + currentChannel + "\n");
             area.setEditable(false);
             area.setWrapText(true);
             area.setFont(Font.font("Monospaced"));
@@ -126,8 +126,15 @@ class Connection
         }
         else if (input.toLowerCase().startsWith("/quit"))
         {
-            // TODO add quit message
-            thread.write("QUIT");
+            String quitMessage = input.substring(5).trim();
+            if (quitMessage.isEmpty() || quitMessage.equals(""))
+            {
+                thread.write("QUIT");
+            }
+            else
+            {
+                thread.write("QUIT :" + quitMessage);
+            }
             thread.closeConnection();
         }
         else
