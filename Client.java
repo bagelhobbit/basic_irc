@@ -18,10 +18,12 @@ class Client
     private final Logger netLog = Logger.getLogger("Network");
     private final String[] nicks;
     private       String   nickname;
+    private       String   user;
 
-    Client(String[] nicks)
+    Client(String[] nicks, String user)
     {
         this.nicks = nicks;
+        this.user = user;
     }
 
     ClientThread startClient(InetAddress addr, int port)
@@ -37,6 +39,7 @@ class Client
         private boolean running  = true;
         private String     serverName;
         private Connection connection;
+        private String     serverAddress;
 
         ClientThread(InetAddress address, int port)
         {
@@ -44,6 +47,8 @@ class Client
             {
                 // Creates and connects to socket at specified port
                 mySocket = new Socket(address, port);
+                // Remove leading '/' from address string
+                serverAddress = String.valueOf(address).substring(1);
             }
             catch (IOException e)
             {
@@ -65,8 +70,8 @@ class Client
                 // Start registration
                 // Record nickname, in case preferred nick is taken and we need to use another
                 nickname = nicks[0];
-                write("NICK " + nickname + "\r\nUSER user host server :realname");
-                // TODO USER params
+                write("NICK " + nickname + "\r\nUSER " + user + " " + user + " " + serverAddress +
+                      " " + ":realname");
                 // End capability negotiation since nothing is supported yet...
                 write("CAP END");
                 while (running)

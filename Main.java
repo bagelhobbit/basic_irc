@@ -10,6 +10,7 @@ import javafx.event.ActionEvent;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
@@ -41,31 +42,91 @@ public class Main extends Application
         grid.setVgap(10);
         grid.setPadding(new Insets(25, 25, 25, 25));
 
-        Text sceneTitle = new Text("Connection information");
-        grid.add(sceneTitle, 0, 0, 3, 1);
+        Text userInfoTitle = new Text("User Information");
+        grid.add(userInfoTitle, 0, 0, 3, 1);
+
+        Label primaryNickLabel = new Label("Nick name:");
+        grid.add(primaryNickLabel, 0, 1);
+
+        TextField primaryNick = new TextField();
+        grid.add(primaryNick, 1, 1);
+
+        Label secondaryNickLabel = new Label("Second choice:");
+        grid.add(secondaryNickLabel, 0, 2);
+
+        TextField secondaryNick = new TextField();
+        grid.add(secondaryNick, 1, 2);
+
+        Label tertiaryNickLabel = new Label("Third Choice:");
+        grid.add(tertiaryNickLabel, 0, 3);
+
+        TextField tertiaryNick = new TextField();
+        grid.add(tertiaryNick, 1, 3);
+
+        Label userNameLabel = new Label("User name:");
+        grid.add(userNameLabel, 0, 4);
+
+        TextField userName = new TextField();
+        grid.add(userName, 1, 4);
+
+
+        Text connectInfoTitle = new Text("Connection Information");
+        grid.add(connectInfoTitle, 0, 6, 3, 1);
 
         Label serverAddress = new Label("Server address:");
-        grid.add(serverAddress, 0, 1);
+        grid.add(serverAddress, 0, 7);
 
         TextField addressTextField = new TextField();
-        grid.add(addressTextField, 1, 1);
+        grid.add(addressTextField, 1, 7);
 
         Label serverPort = new Label("Server Port:");
-        grid.add(serverPort, 0, 2);
+        grid.add(serverPort, 0, 8);
 
         TextField portTextField = new TextField();
-        grid.add(portTextField, 1, 2);
+        grid.add(portTextField, 1, 8);
 
         Button connect = new Button("Connect");
         connect.setDefaultButton(true);
         connect.setOnAction((ActionEvent event) ->
                             {
-                                logger.log(Level.INFO, "Parsing server connection input");
                                 // Default values
                                 InetAddress address = null;
                                 int         port;
-                                String[]    nicks   = {"Nickname", "name", "user"};
+                                String[]    nicks   = new String[3];
+                                String      user;
 
+                                nicks[0] = primaryNick.getText();
+                                nicks[1] = secondaryNick.getText();
+                                nicks[2] = tertiaryNick.getText();
+
+                                if (nicks[0].isEmpty() || nicks[0].equals(""))
+                                {
+                                    Alert alert = new Alert(Alert.AlertType.ERROR);
+                                    alert.setHeaderText(null);
+                                    alert.setContentText("Please enter a nick name!");
+                                    alert.showAndWait();
+                                    return;
+                                }
+                                else if (nicks[1].isEmpty() || nicks[1].equals(""))
+                                {
+                                    Alert alert = new Alert(Alert.AlertType.ERROR);
+                                    alert.setHeaderText(null);
+                                    alert.setContentText("Please enter a backup nick name!");
+                                    alert.showAndWait();
+                                    return;
+                                }
+
+                                user = userName.getText();
+                                if (user.isEmpty() || user.equals(""))
+                                {
+                                    Alert alert = new Alert(Alert.AlertType.ERROR);
+                                    alert.setHeaderText(null);
+                                    alert.setContentText("Please enter a user name!");
+                                    alert.showAndWait();
+                                    return;
+                                }
+
+                                logger.log(Level.INFO, "Parsing server connection input");
                                 try
                                 {
                                     address = InetAddress.getByName(addressTextField.getText());
@@ -86,22 +147,22 @@ public class Main extends Application
                                                "Unable to parse port number, using default value");
                                 }
 
-                                startConnection(address, port, nicks);
+                                startConnection(address, port, nicks, user);
                             }
         );
         HBox hbBtn = new HBox(10);
         hbBtn.setAlignment(Pos.BOTTOM_RIGHT);
         hbBtn.getChildren().add(connect);
-        grid.add(hbBtn, 1, 3);
+        grid.add(hbBtn, 1, 9);
 
-        Scene scene = new Scene(grid, 300, 250);
+        Scene scene = new Scene(grid, 300, 350);
         primaryStage.setScene(scene);
         primaryStage.show();
     }
 
-    private void startConnection(InetAddress address, int port, String[] nicks)
+    private void startConnection(InetAddress address, int port, String[] nicks, String user)
     {
-        Client client = new Client(nicks);
+        Client client = new Client(nicks, user);
         new Connection(client.startClient(address, port), address.toString(), "SERVER");
     }
 
