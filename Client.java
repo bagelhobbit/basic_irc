@@ -107,19 +107,24 @@ class Client
                 try
                 {
                     // Messages shouldn't ever be longer than 512 characters
-                    byte[] bytes = new byte[512];
-                    int    i     = 0;
-                    int    input = in.read();
+                    byte[] bytes     = new byte[512];
+                    int    i         = 0;
+                    int    input     = in.read();
+                    int    lastInput = -1;
                     while (input != -1)
                     {
-                        if (input == 0x0d)
+                        // Add characters before we check if the message ended,
+                        // otherwise log messages will not display properly
+                        bytes[i] = (byte) input;
+
+                        if (lastInput == 0x0d && input == 0x0a)
                         {
                             // Messages end in 0x0d 0x0a so end here
-                            // TODO check for following 0x0a
                             break;
                         }
-                        bytes[i] = (byte) input;
+
                         i++;
+                        lastInput = input;
                         input = in.read();
                     }
                     return new String(bytes);
@@ -131,7 +136,6 @@ class Client
             }
             catch (IOException e)
             {
-                //                e.printStackTrace();
                 running = false;
                 netLog.log(Level.SEVERE, "Unable to read from server");
                 closeConnection();
