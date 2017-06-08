@@ -34,6 +34,22 @@ public class Main extends Application
         Logger logger = Logger.getLogger("Default");
         logger.setLevel(Level.CONFIG);
 
+        String[] userInfo = Config.getUserInfo();
+
+        String nick  = "";
+        String nick2 = "";
+        String nick3 = "";
+        String name  = "";
+
+        if (userInfo != null)
+        {
+            nick = userInfo[0];
+            nick2 = userInfo[1];
+            nick3 = userInfo[2];
+            name = userInfo[3];
+            //TODO: move focus from nickname field
+        }
+
         primaryStage.setTitle("Basic IRC");
 
         GridPane grid = new GridPane();
@@ -48,25 +64,25 @@ public class Main extends Application
         Label primaryNickLabel = new Label("Nick name:");
         grid.add(primaryNickLabel, 0, 1);
 
-        TextField primaryNick = new TextField();
+        TextField primaryNick = new TextField(nick);
         grid.add(primaryNick, 1, 1);
 
         Label secondaryNickLabel = new Label("Second choice:");
         grid.add(secondaryNickLabel, 0, 2);
 
-        TextField secondaryNick = new TextField();
+        TextField secondaryNick = new TextField(nick2);
         grid.add(secondaryNick, 1, 2);
 
         Label tertiaryNickLabel = new Label("Third Choice:");
         grid.add(tertiaryNickLabel, 0, 3);
 
-        TextField tertiaryNick = new TextField();
+        TextField tertiaryNick = new TextField(nick3);
         grid.add(tertiaryNick, 1, 3);
 
         Label userNameLabel = new Label("User name:");
         grid.add(userNameLabel, 0, 4);
 
-        TextField userName = new TextField();
+        TextField userName = new TextField(name);
         grid.add(userName, 1, 4);
 
 
