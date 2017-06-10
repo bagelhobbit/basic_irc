@@ -172,6 +172,13 @@ public class Main extends Application
                                 {
                                     e.printStackTrace();
                                     netLog.log(Level.SEVERE, "Unknown host, could not connect");
+
+                                    Alert alert = new Alert(Alert.AlertType.ERROR);
+                                    alert.setHeaderText(null);
+                                    alert.setContentText(
+                                        "Unknown host, could not connect to the server.");
+                                    alert.showAndWait();
+
                                     // Stop connection if we don't have a valid host
                                     return;
                                 }
