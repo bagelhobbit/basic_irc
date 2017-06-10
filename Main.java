@@ -33,6 +33,8 @@ public class Main extends Application
         netLog.setLevel(Level.CONFIG);
         Logger logger = Logger.getLogger("Default");
         logger.setLevel(Level.CONFIG);
+        Logger fileLog = Logger.getLogger("FileIO");
+        fileLog.setLevel(Level.CONFIG);
 
         String[] userInfo = Config.getUserInfo();
 
@@ -115,7 +117,7 @@ public class Main extends Application
                                 nicks[1] = secondaryNick.getText();
                                 nicks[2] = tertiaryNick.getText();
 
-                                if (nicks[0].isEmpty() || nicks[0].equals(""))
+                                if (nicks[0].isEmpty())
                                 {
                                     Alert alert = new Alert(Alert.AlertType.ERROR);
                                     alert.setHeaderText(null);
@@ -123,7 +125,7 @@ public class Main extends Application
                                     alert.showAndWait();
                                     return;
                                 }
-                                else if (nicks[1].isEmpty() || nicks[1].equals(""))
+                                else if (nicks[1].isEmpty())
                                 {
                                     Alert alert = new Alert(Alert.AlertType.ERROR);
                                     alert.setHeaderText(null);
@@ -142,7 +144,25 @@ public class Main extends Application
                                     return;
                                 }
 
+                                if (nicks[2] == null)
+                                {
+                                    // make sure we don't pass the string "null" to setUserInfo()
+                                    nicks[2] = "";
+                                }
+
+                                Config.setUserInfo(nicks[0], nicks[1], nicks[2], user);
+
                                 logger.log(Level.INFO, "Parsing server connection input");
+                                if (addressTextField.getText().equals(""))
+                                {
+                                    // Address field not allowed to be empty
+                                    Alert alert = new Alert(Alert.AlertType.ERROR);
+                                    alert.setHeaderText(null);
+                                    alert.setContentText(
+                                        "Please enter a server address to connect to.");
+                                    alert.showAndWait();
+                                    return;
+                                }
                                 try
                                 {
                                     address = InetAddress.getByName(addressTextField.getText());
