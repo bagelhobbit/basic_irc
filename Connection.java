@@ -135,6 +135,7 @@ class Connection
             {
                 thread.write("QUIT: " + quitMessage);
             }
+            appendToWindow("Disconnected", null);
             thread.closeConnection();
         }
         else

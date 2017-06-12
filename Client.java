@@ -6,8 +6,12 @@ import java.io.EOFException;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.Socket;
+import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import javafx.application.Platform;
+import javafx.scene.control.TextInputDialog;
 
 /**
  * Created by Evan on 5/15/2017.
@@ -40,6 +44,8 @@ class Client
         private String     serverName;
         private Connection connection;
         private String     serverAddress;
+        // Start at one since initial attempt is hardcoded to use 0
+        private int nickAttempt = 1;
 
         ClientThread(InetAddress address, int port)
         {
@@ -154,6 +160,7 @@ class Client
             netLog.log(Level.INFO, "Received: " + msg);
             String[] split;
             String   receivedFrom = null;
+
             if (msg.contains("NOTICE"))
             {
                 split = msg.split("NOTICE \\*");
@@ -181,7 +188,44 @@ class Client
                 // get the channel that sent the message
                 receivedFrom = split[2];
             }
+            else if (msg.contains("433 * " + nickname + " :Nickname is already in use."))
+            {
+                if (nickAttempt >= nicks.length || nicks[nickAttempt].isEmpty())
+                {
+                    // Allow JavaFX to update UI on correct thread
+                    Platform.runLater(() ->
+                                      {
+                                          TextInputDialog dialog = new TextInputDialog("nickname");
+                                          dialog.setTitle("Enter new nickname");
+                                          dialog.setHeaderText(null);
+                                          dialog.setContentText(
+                                              "All given nicks are in use, please enter a new nickname:");
+
+                                          Optional<String> result = dialog.showAndWait();
+                                          result.ifPresent(s -> nicks[nickAttempt] = s);
+
+                                          setNextNick();
+                                      });
+                }
+                else
+                {
+                    setNextNick();
+                }
+            }
+            else if (msg.startsWith("ERROR :Closing Link:"))
+            {
+                closeConnection();
+                msg = "Connection closed by server";
+            }
             connection.appendToWindow(msg, receivedFrom);
+        }
+
+        private void setNextNick()
+        {
+            nickname = nicks[nickAttempt];
+            write("NICK " + nickname);
+            nickAttempt = ++nickAttempt;
+            Logger.getAnonymousLogger().log(Level.CONFIG, "attempts: " + nickAttempt);
         }
 
         void closeConnection()
