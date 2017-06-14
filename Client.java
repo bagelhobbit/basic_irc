@@ -76,8 +76,7 @@ class Client
                 // Start registration
                 // Record nickname, in case preferred nick is taken and we need to use another
                 nickname = nicks[0];
-                write("NICK " + nickname + "\r\nUSER " + user + " " + user + " " + serverAddress +
-                      " " + ":realname");
+                write("NICK " + nickname + "\r\nUSER " + user + " 0 * " + ":realname");
                 // End capability negotiation since nothing is supported yet...
                 write("CAP END");
                 while (running)
@@ -224,7 +223,7 @@ class Client
         {
             nickname = nicks[nickAttempt];
             write("NICK " + nickname);
-            nickAttempt = ++nickAttempt;
+            nickAttempt++;
             Logger.getAnonymousLogger().log(Level.CONFIG, "attempts: " + nickAttempt);
         }
 
