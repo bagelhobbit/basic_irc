@@ -14,8 +14,12 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
+import javafx.scene.control.Tooltip;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.StackPane;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
 
@@ -37,6 +41,13 @@ public class Main extends Application
         fileLog.setLevel(Level.CONFIG);
 
         String[] userInfo = Config.getUserInfo();
+
+        final Image errorIcon = new Image(getClass().getResource("Images/error.png").toString(),
+                                          16,
+                                          16,
+                                          true,
+                                          true,
+                                          true);
 
         String nick  = "";
         String nick2 = "";
@@ -66,15 +77,61 @@ public class Main extends Application
         Label primaryNickLabel = new Label("Nick name:");
         grid.add(primaryNickLabel, 0, 1);
 
+        ImageView primaryNickError = new ImageView();
+        // Make sure image is set properly on initialization
+        Image primaryImage = nick.isEmpty() ? errorIcon : null;
+        primaryNickError.setImage(primaryImage);
+
         TextField primaryNick = new TextField(nick);
-        grid.add(primaryNick, 1, 1);
+        // Update icon based on textfield contents
+        primaryNick.textProperty().addListener(observable ->
+                                               {
+                                                   final String text = primaryNick.getText();
+                                                   Image        icon =
+                                                       text.isEmpty() ? errorIcon : null;
+                                                   primaryNickError.setImage(icon);
+                                               });
+
+        Tooltip nickTooltip = new Tooltip("You cannot have an empty nickname.");
+        Tooltip.install(primaryNickError, nickTooltip);
+
+        StackPane nickStack = new StackPane();
+        nickStack.getChildren().addAll(primaryNick, primaryNickError);
+        nickStack.setAlignment(Pos.CENTER_RIGHT);
+        StackPane.setMargin(primaryNickError, new Insets(0, 10, 0, 0));
+
+        grid.add(nickStack, 1, 1);
 
         Label secondaryNickLabel = new Label("Second choice:");
         grid.add(secondaryNickLabel, 0, 2);
 
-        TextField secondaryNick = new TextField(nick2);
-        grid.add(secondaryNick, 1, 2);
+        ImageView secondaryNickError = new ImageView();
+        // Make sure image is set properly on initialization
+        Image secondaryImage = nick2.isEmpty() ? errorIcon : null;
+        secondaryNickError.setImage(secondaryImage);
 
+        TextField secondaryNick = new TextField(nick2);
+        // Update icon based on textfield contents
+        secondaryNick.textProperty().addListener(observable ->
+                                                 {
+                                                     final String text = secondaryNick.getText();
+                                                     Image        icon =
+                                                         text.isEmpty() ? errorIcon : null;
+                                                     secondaryNickError.setImage(icon);
+                                                 });
+
+        // Reuse tooltip from above
+        Tooltip.install(secondaryNickError, nickTooltip);
+
+        // This isn't a very good name, but I don't have a better one...
+        StackPane nick2Stack = new StackPane();
+        nick2Stack.getChildren().addAll(secondaryNick, secondaryNickError);
+        nick2Stack.setAlignment(Pos.CENTER_RIGHT);
+        StackPane.setMargin(secondaryNickError, new Insets(0, 10, 0, 0));
+
+        grid.add(nick2Stack, 1, 2);
+
+        // A third nickname choice is optional so there is no error icon here
         Label tertiaryNickLabel = new Label("Third Choice:");
         grid.add(tertiaryNickLabel, 0, 3);
 
@@ -84,8 +141,30 @@ public class Main extends Application
         Label userNameLabel = new Label("User name:");
         grid.add(userNameLabel, 0, 4);
 
+        ImageView userNameError = new ImageView();
+        // Make sure image is set properly on initialization
+        Image userImage = name.isEmpty() ? errorIcon : null;
+        userNameError.setImage(userImage);
+
         TextField userName = new TextField(name);
-        grid.add(userName, 1, 4);
+        // Update icon based on textfield contents
+        userName.textProperty().addListener(observable ->
+                                            {
+                                                final String text = userName.getText();
+                                                Image        icon =
+                                                    text.isEmpty() ? errorIcon : null;
+                                                userNameError.setImage(icon);
+                                            });
+
+        Tooltip userTooltip = new Tooltip("User name cannot be left blank.");
+        Tooltip.install(userNameError, userTooltip);
+
+        StackPane userNameStack = new StackPane();
+        userNameStack.getChildren().addAll(userName, userNameError);
+        userNameStack.setAlignment(Pos.CENTER_RIGHT);
+        StackPane.setMargin(userNameError, new Insets(0, 10, 0, 0));
+
+        grid.add(userNameStack, 1, 4);
 
 
         Text connectInfoTitle = new Text("Connection Information");
@@ -101,6 +180,8 @@ public class Main extends Application
         grid.add(serverPort, 0, 8);
 
         TextField portTextField = new TextField();
+        // Set prompt text to default port number
+        portTextField.setPromptText("6667");
         grid.add(portTextField, 1, 8);
 
         Button connect = new Button("Connect");

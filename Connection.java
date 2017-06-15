@@ -117,7 +117,7 @@ class Connection
         {
             // Remove leading command for better formatting
             String toLeave = input.substring(5).trim();
-            if (toLeave.isEmpty() || toLeave.equals(""))
+            if (toLeave.isEmpty())
             {
                 toLeave = currentChannel;
             }
@@ -127,7 +127,7 @@ class Connection
         else if (input.toLowerCase().startsWith("/quit"))
         {
             String quitMessage = input.substring(5).trim();
-            if (quitMessage.isEmpty() || quitMessage.equals(""))
+            if (quitMessage.isEmpty())
             {
                 thread.write("QUIT");
             }
